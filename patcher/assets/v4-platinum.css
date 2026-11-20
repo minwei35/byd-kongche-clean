@@ -1,0 +1,343 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   BYD 控车 · UI 4.2 —— 白金（Platinum）皮肤
+   配色与分工由 codexcn/gpt-6.2-sol 定调（2026-11-20），实现为纯覆盖层。
+
+   分工（沿用 4.x，不许破）：
+     香槟金 #D8C29A = 待执行动作 + 当前选中
+     铂蓝   #A3BDDA = 数据通道（示波器/读数）
+     柔绿   #83C8A4 = 状态正常
+     亮红   #E0676F = 异常/停扫
+   ⚠ 金色不用于状态胶囊（.pill），胶囊只吃绿/铜/红。
+
+   本文件只在 html[data-skin="platinum"] 下生效，不改任何几何尺寸。
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── ① token：冷银烟灰的铂金底（比石墨亮一档，但远不到"浅色主题"）────── */
+html[data-skin="platinum"]:root{
+  --v4-graphite:#15181C; --v4-panel:#21262C; --v4-steel:#75818D;
+  --v4-amber:#D8C29A;    --v4-ice:#A3BDDA;   --v4-alert:#E0676F;
+
+  --bg:#13161A; --bg2:#1A1E23; --bg3:#21262C;
+  --card:rgba(45,51,59,.95); --card2:rgba(60,68,78,.62);
+  --line:rgba(200,212,224,.13);
+  --txt:#E4EAF0; --muted:#AEB8C3; --sub:#8A95A1;
+
+  --accent:#D8C29A; --accent-d:#B29A73;
+  --ok:#83C8A4; --ok-bg:rgba(131,200,164,.14); --ok-line:rgba(131,200,164,.34);
+  --warn:#DE8F5A; --warn-bg:rgba(222,143,90,.14); --warn-line:rgba(222,143,90,.32);
+  --danger:#E0676F; --danger-bg:rgba(224,103,111,.14); --danger-line:rgba(224,103,111,.32);
+
+  --btn-unlock:#7FA98A; --btn-unlock-dark:#5C8368;
+  --btn-lock:#6E8BA8;   --btn-lock-dark:#4E6C88;
+  --btn-power:#B98A5E;  --btn-power-dark:#966A42;
+  --btn-off:#8B7BA8;    --btn-off-dark:#6B5C88;
+  --btn-trunk:#B98A5E; --btn-flash:#C9A46A; --btn-find:#7FA8C9; --btn-windows:#86929E;
+
+  --shadow:0 14px 32px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.05);
+  --glass:blur(14px) saturate(112%);
+}
+
+/* ── ② 页面底：一整块拉丝铂金板（斜向发丝 + 顶部冷光，不是屏幕脏点）────── */
+html[data-skin="platinum"] body{
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(216,194,154,.07), transparent 58%),
+    repeating-linear-gradient(115deg, rgba(117,129,141,.035) 0 1px, transparent 1px 4px),
+    var(--bg);
+  color:var(--txt);
+}
+html[data-skin="platinum"] body{
+  font-family:system-ui,-apple-system,"PingFang SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+}
+
+/* ── ③ 顶栏：冷银分隔线 + 丝印标题（白金不靠亮线区分层级）────────────── */
+html[data-skin="platinum"] body .topbar{
+  background:linear-gradient(180deg, rgba(33,38,44,.97), rgba(21,24,28,.94));
+  border-bottom:1px solid var(--line);
+}
+html[data-skin="platinum"] body .topbar::after{
+  background:linear-gradient(90deg, rgba(216,194,154,.55) 0 54px, rgba(200,212,224,.10) 54px 100%);
+}
+html[data-skin="platinum"] body .tb-title{color:#EDF2F7;letter-spacing:.16em}
+html[data-skin="platinum"] body .tb-sub{color:var(--sub);letter-spacing:.03em}
+html[data-skin="platinum"] body .icon-btn{
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  border:1px solid rgba(200,212,224,.14);color:var(--muted);
+}
+html[data-skin="platinum"] body .icon-btn.active{
+  color:var(--v4-amber);
+  border-color:rgba(216,194,154,.5);
+  background:rgba(216,194,154,.12);
+}
+
+/* ── ④ 卡片：铂金面板 + 拉丝 + 冷银刻度脊（金段只在活卡出现）─────────── */
+html[data-skin="platinum"] body .card:not(.hero),
+html[data-skin="platinum"] body #page-ble > .card{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.012) 28%, transparent 62%),
+    repeating-linear-gradient(115deg, rgba(117,129,141,.045) 0 1px, transparent 1px 4px),
+    var(--card);
+  border:1px solid rgba(200,212,224,.14);
+  box-shadow:0 10px 26px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.07);
+}
+html[data-skin="platinum"] body #page-ble > .card::before{
+  background:linear-gradient(200deg, rgba(216,194,154,.07), transparent 48%);
+}
+/* 刻度脊：拉丝银轴线 + 银刻度；只有"已直连"的卡才点香槟金 */
+html[data-skin="platinum"] body .card:not(.hero)::after,
+html[data-skin="platinum"] body #page-ble > .card::after{
+  background:
+    linear-gradient(90deg, rgba(174,184,195,.30) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(180deg, rgba(174,184,195,.50) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(180deg, rgba(174,184,195,.85) 0 2px, transparent 2px 48px);
+}
+html[data-skin="platinum"] body #page-ble > .card:has(#scopeConn.link-live)::after{
+  background:
+    linear-gradient(180deg, var(--v4-amber) 0 16px, rgba(216,194,154,0) 16px),
+    linear-gradient(90deg, rgba(174,184,195,.30) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(180deg, rgba(174,184,195,.50) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(180deg, rgba(174,184,195,.85) 0 2px, transparent 2px 48px);
+}
+
+/* ── ⑤ 区块标题：更暗更小的丝印，配一枚香槟金短柱 ───────────────────── */
+html[data-skin="platinum"] body .sec-title{color:var(--sub);letter-spacing:.1em}
+/* 区块短柱回到拉丝银：金色只属于待执行动作与当前选中，章节标记不算 */
+html[data-skin="platinum"] body .sec-title::before{background:var(--v4-steel);opacity:.75}
+html[data-skin="platinum"] body .sec-now{color:var(--v4-ice)}
+
+/* ── ⑥ 按钮：香槟金主操作配冷烟墨字（对比 8:1 以上），次操作是拉丝银边 ─ */
+html[data-skin="platinum"] body .btn-primary{
+  background:linear-gradient(180deg,#E7D5B2,#C9AF84);
+  color:#1A1D21;
+  box-shadow:0 6px 18px rgba(216,194,154,.20), inset 0 1px 0 rgba(255,255,255,.5);
+}
+html[data-skin="platinum"] body .btn-primary:active{
+  background:linear-gradient(180deg,#D9C39B,#B79C71);
+  box-shadow:0 2px 8px rgba(216,194,154,.16), inset 0 1px 0 rgba(255,255,255,.35);
+}
+html[data-skin="platinum"] body .btn-ghost{
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  border:1px solid rgba(200,212,224,.16);color:var(--txt);
+}
+html[data-skin="platinum"] body .btn-mini{
+  background:rgba(255,255,255,.06);border:1px solid rgba(200,212,224,.16);color:var(--muted);
+}
+
+/* ── ⑦ 导航：铂金底板 + 香槟金小灯（全屏唯一常亮的金）───────────────── */
+html[data-skin="platinum"] body .navbar{
+  background:linear-gradient(180deg, rgba(33,38,44,.98), rgba(18,21,25,.99));
+  border-top:1px solid rgba(200,212,224,.14);
+  box-shadow:0 -8px 22px rgba(0,0,0,.38);
+}
+html[data-skin="platinum"] body .nav-item{color:#8F9AA6}
+html[data-skin="platinum"] body .nav-item.active{color:var(--v4-amber)}
+html[data-skin="platinum"] body .nav-item.active::before{
+  background:linear-gradient(90deg,#E7D5B2,#C9AF84);
+  box-shadow:0 0 9px rgba(216,194,154,.55);
+}
+
+/* ── ⑧ 示波器：一块冷银仪表玻璃，数据线用铂蓝浮在暗面 ───────────────── */
+html[data-skin="platinum"] body .scope-chart{
+  background:
+    linear-gradient(180deg, rgba(163,189,218,.06), rgba(0,0,0,0) 58%),
+    rgba(24,28,33,.9);
+  border:1px solid rgba(163,189,218,.18);
+  box-shadow:inset 0 8px 18px rgba(0,0,0,.34), inset 0 0 0 1px rgba(255,255,255,.04);
+}
+html[data-skin="platinum"] body .scope-live{
+  background:rgba(200,212,224,.12);
+  border:1px solid rgba(200,212,224,.12);
+}
+html[data-skin="platinum"] body .scope-live-item{background:rgba(26,30,36,.95)}
+html[data-skin="platinum"] body .scope-live-k{color:var(--sub);font-size:11px;letter-spacing:.05em}
+html[data-skin="platinum"] body .scope-live-v{color:#EAF1F8;font-size:18px}
+html[data-skin="platinum"] body .scope-live-v.accent{color:var(--v4-ice)}
+html[data-skin="platinum"] body .scope-live-v.link-live{color:#9FD0C4}
+html[data-skin="platinum"] body .scope-legend .lg{
+  background:rgba(200,212,224,.07);border:1px solid rgba(200,212,224,.13);color:var(--muted);
+}
+html[data-skin="platinum"] body .scope-legend .lg-raw i{border-top-color:rgba(174,184,195,.55)}
+html[data-skin="platinum"] body .scope-legend .lg-sig i{border-top-color:rgba(163,189,218,.95)}
+html[data-skin="platinum"] body .scope-legend .lg-enter i{border-top-color:rgba(131,200,164,.92)}
+html[data-skin="platinum"] body .scope-legend .lg-exit i{border-top-color:rgba(222,143,90,.92)}
+html[data-skin="platinum"] body .scope-hint{color:var(--muted)}
+html[data-skin="platinum"] body .scope-gear{
+  background:rgba(255,255,255,.06);border:1px solid rgba(200,212,224,.18);color:var(--txt);
+}
+
+/* ── ⑨ 键值行与开关：分隔线换冷银虚线，开关的"开"是柔绿而不是金 ──────── */
+html[data-skin="platinum"] body .kv{border-bottom:1px dashed rgba(200,212,224,.14)}
+html[data-skin="platinum"] body .kv-k{color:var(--sub)}
+html[data-skin="platinum"] body .kv-v{color:#EDF2F7}
+html[data-skin="platinum"] body .kv:active{background:rgba(216,194,154,.07)}
+html[data-skin="platinum"] body .switch{
+  background:rgba(200,212,224,.10);border:1px solid rgba(200,212,224,.16);
+}
+html[data-skin="platinum"] body .switch i{background:#8A95A1}
+html[data-skin="platinum"] body .switch.on{
+  background:rgba(131,200,164,.16);border-color:rgba(131,200,164,.42);
+}
+html[data-skin="platinum"] body .switch.on i{background:var(--ok);box-shadow:none}
+
+/* ── ⑩ 选中与状态：金=选中（配墨字），胶囊只吃绿/铜/红 ───────────────── */
+html[data-skin="platinum"] body .chip.active{
+  background:linear-gradient(180deg,#E7D5B2,#C9AF84);
+  border-color:rgba(216,194,154,.66);
+  color:#1A1D21;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 2px 8px rgba(216,194,154,.16);
+}
+html[data-skin="platinum"] body .chip,html[data-skin="platinum"] body .pill,
+html[data-skin="platinum"] body .seg-btn,html[data-skin="platinum"] body .tseg-b{
+  background:rgba(255,255,255,.055);border:1px solid rgba(200,212,224,.16);color:var(--muted);
+}
+html[data-skin="platinum"] body .pill{color:var(--txt)}
+html[data-skin="platinum"] body .pill.on{
+  background:rgba(255,255,255,.06);border-color:rgba(200,212,224,.16);color:var(--txt);
+}
+html[data-skin="platinum"] body .pill.on i{background:var(--ok);box-shadow:0 0 8px rgba(131,200,164,.5)}
+html[data-skin="platinum"] body .pill.danger{
+  background:rgba(224,103,111,.18);border-color:rgba(224,103,111,.5);color:#F3B4B7;
+}
+html[data-skin="platinum"] body .pill.warn{
+  background:rgba(222,143,90,.16);border-color:rgba(222,143,90,.45);color:#F0C4A2;
+}
+
+/* ── ⑪ 控车宫格：拉丝铂金瓦片，解锁才点金，锁车是冷银 ───────────────── */
+html[data-skin="platinum"] body .ctl{
+  background:
+    linear-gradient(168deg, rgba(255,255,255,.07), rgba(255,255,255,.015)),
+    repeating-linear-gradient(115deg, rgba(117,129,141,.05) 0 1px, transparent 1px 4px);
+  border:1px solid rgba(200,212,224,.15);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 2px 10px rgba(0,0,0,.24);
+}
+html[data-skin="platinum"] body .ctl:active{
+  border-color:rgba(216,194,154,.5);background:rgba(216,194,154,.12);
+}
+html[data-skin="platinum"] body .ctl-t{color:var(--txt)}
+html[data-skin="platinum"] body .ctl[data-act] .ctl-svg{color:#A9B5C1}
+html[data-skin="platinum"] body .ctl[data-act="unlock"] .ctl-svg{color:var(--v4-amber)}
+html[data-skin="platinum"] body .ctl[data-act="lock"] .ctl-svg{color:#AEB8C3}
+html[data-skin="platinum"] body .ctl[data-act="trunk_close"],
+html[data-skin="platinum"] body .ctl[data-act="windows"]{
+  background:
+    linear-gradient(168deg, rgba(163,189,218,.08), rgba(163,189,218,.02)),
+    repeating-linear-gradient(115deg, rgba(117,129,141,.05) 0 1px, transparent 1px 4px);
+}
+html[data-skin="platinum"] body .ctl[data-act="trunk_close"] .ctl-svg,
+html[data-skin="platinum"] body .ctl[data-act="windows"] .ctl-svg{opacity:.55}
+
+/* ── ⑫ 车卡：照片不动，读数改铂蓝（数据焦点与金色操作入口分开）───────── */
+html[data-skin="platinum"] body .hero{
+  /* hero 内部自带一套深色 token，跟着白金一起换，否则里面的胶囊还是旧蓝绿 */
+  --ok:#83C8A4; --ok-bg:rgba(131,200,164,.15); --ok-line:rgba(131,200,164,.34);
+  --warn:#DE8F5A; --warn-bg:rgba(222,143,90,.15); --warn-line:rgba(222,143,90,.34);
+  --line:rgba(200,212,224,.14);
+  box-shadow:0 16px 38px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.10);
+}
+html[data-skin="platinum"] body .hero-name{color:#F2F6FA}
+html[data-skin="platinum"] body .hm-val{color:#CFE2F2}
+html[data-skin="platinum"] body .hero-metric{color:var(--muted)}
+
+/* ── ⑬ 弹层与 Toast：铂金面板 + 香槟金发丝 ─────────────────────────── */
+html[data-skin="platinum"] body .sheet{background:rgba(8,10,12,.8)}
+html[data-skin="platinum"] body .sheet-card{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.06), transparent 26%),
+    repeating-linear-gradient(115deg, rgba(117,129,141,.04) 0 1px, transparent 1px 4px),
+    #242A31;
+  border:1px solid rgba(200,212,224,.16);
+  box-shadow:0 26px 60px rgba(0,0,0,.6);
+}
+html[data-skin="platinum"] body .sheet-card::before{
+  background:linear-gradient(90deg, var(--v4-amber), rgba(216,194,154,0));
+}
+html[data-skin="platinum"] body .toast{
+  background:rgba(36,42,49,.97);border:1px solid rgba(216,194,154,.32);color:var(--txt);
+}
+
+/* ── ⑭ 滑杆与阈值输入：轨道从钢灰走到香槟金，刻度用暗色切出来 ────────── */
+html[data-skin="platinum"] body .range{
+  background:rgba(200,212,224,.12);border:1px solid rgba(200,212,224,.18);
+}
+html[data-skin="platinum"] body #acTemp::-webkit-slider-runnable-track{
+  background:
+    repeating-linear-gradient(90deg, transparent 0 13px, rgba(21,24,28,.55) 13px 14px),
+    linear-gradient(90deg, rgba(174,184,195,.45), rgba(216,194,154,.95));
+}
+html[data-skin="platinum"] body .range::-webkit-slider-thumb{
+  background:linear-gradient(180deg,#E7D5B2,#C9AF84);
+  border:3px solid #191D22;
+  box-shadow:0 2px 6px rgba(0,0,0,.5), 0 0 0 2px rgba(216,194,154,.25);
+}
+html[data-skin="platinum"] body .thr-row .tune-input{
+  background:rgba(255,255,255,.06);border:1px solid rgba(200,212,224,.2);color:#EDF2F7;
+}
+
+/* ── ⑮ 读数：数字用铂蓝白，等宽不变（金属感靠明度层次，不靠发光）───── */
+html[data-skin="platinum"] body .tire-val,
+html[data-skin="platinum"] body .ac-temp-val{color:#E6EFF7}
+html[data-skin="platinum"] body .ac-sub,html[data-skin="platinum"] body .ac-hint{color:var(--sub)}
+
+/* ── ⑯ 4.3 新增：车辆控制标题行的通道牌与二次确认行，跟着白金一起换 ───── */
+html[data-skin="platinum"] body .chan-tag{
+  background:rgba(255,255,255,.06);border:1px solid rgba(200,212,224,.20);color:var(--muted);
+}
+html[data-skin="platinum"] body .chan-tag[data-chan="ble"]{
+  background:rgba(131,200,164,.16);border-color:rgba(131,200,164,.46);color:#A9DCC2;
+}
+html[data-skin="platinum"] body .chan-tag[data-chan="ble"]::before{background:var(--ok);box-shadow:0 0 7px rgba(131,200,164,.7)}
+html[data-skin="platinum"] body .chan-tag[data-chan="cloud"]{
+  background:rgba(163,189,218,.16);border-color:rgba(163,189,218,.46);color:#C6D8E9;
+}
+html[data-skin="platinum"] body .chan-tag[data-chan="cloud"]::before{background:var(--v4-ice);box-shadow:0 0 7px rgba(163,189,218,.7)}
+html[data-skin="platinum"] body .ctl-cfm{
+  background:rgba(255,255,255,.06);border:1px solid rgba(200,212,224,.16);
+}
+html[data-skin="platinum"] body .ctl-cfm-state[data-on="1"]{color:var(--v4-ice)}
+
+/* ── ⑰ 4.4 通道说明弹层：白金版 ─────────────────────────────────────── */
+html[data-skin="platinum"] body .chan-hero{
+  background:rgba(255,255,255,.06);border:1px solid rgba(200,212,224,.16);
+}
+html[data-skin="platinum"] body .chan-big{color:#EDF2F7}
+html[data-skin="platinum"] body .chan-big[data-chan="ble"]{color:#A9DCC2}
+html[data-skin="platinum"] body .chan-big[data-chan="cloud"]{color:#C6D8E9}
+html[data-skin="platinum"] body .chan-sep{
+  background:linear-gradient(90deg, transparent, rgba(200,212,224,.18), transparent);
+}
+
+/* ── ⑱ 4.5 行程统计：白金版（柱子用铂蓝，选中用香槟金）────────────────── */
+html[data-skin="platinum"] body .trip-seg-b{
+  background:rgba(255,255,255,.06);border:1px solid rgba(200,212,224,.16);color:var(--muted);
+}
+html[data-skin="platinum"] body .trip-seg-b.on{
+  background:rgba(216,194,154,.18);border-color:rgba(216,194,154,.55);color:#F0DDB8;
+}
+html[data-skin="platinum"] body .trip-kpi{
+  background:rgba(255,255,255,.06);border:1px solid rgba(200,212,224,.14);
+}
+html[data-skin="platinum"] body .trip-bars{border-bottom-color:rgba(200,212,224,.16)}
+html[data-skin="platinum"] body .trip-bars .tb i{
+  background:linear-gradient(180deg, rgba(163,189,218,.9), rgba(163,189,218,.3));
+}
+
+/* ── ⑲ 4.6 关键指标卡：白金版 ───────────────────────────────────────── */
+html[data-skin="platinum"] body .kpi-t{
+  background:rgba(255,255,255,.06);border:1px solid rgba(200,212,224,.14);
+}
+html[data-skin="platinum"] body .chg-block{
+  background:rgba(255,255,255,.055);border:1px solid rgba(200,212,224,.14);
+}
+html[data-skin="platinum"] body .chg-soc{color:#C6D8E9}
+html[data-skin="platinum"] body .chg-soc.to{color:var(--ok)}
+html[data-skin="platinum"] body .ratio-bar{background:rgba(200,212,224,.12)}
+html[data-skin="platinum"] body .ratio-bar i{
+  background:linear-gradient(90deg, rgba(163,189,218,.9), rgba(163,189,218,.45));
+}
+html[data-skin="platinum"] body .ratio-bar i.chg{
+  background:linear-gradient(90deg, rgba(131,200,164,.9), rgba(131,200,164,.45));
+}
+
+/* ── ⑳ 4.8 通知授权按钮：白金版 ─────────────────────────────── */
+html[data-skin="platinum"] body .chg-access{
+  border:1px solid rgba(216,194,154,.5);background:rgba(216,194,154,.14);color:#F0DDB8;
+}

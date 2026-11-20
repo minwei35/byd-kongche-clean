@@ -1,0 +1,9 @@
+# 构建产物与本地私有物，一律不进仓库
+*.apk
+*.idsig
+*.sha256
+*.keystore
+dist/
+.private/
+__pycache__/
+*.pyc

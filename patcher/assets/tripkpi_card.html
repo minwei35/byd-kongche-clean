@@ -1,0 +1,34 @@
+<div class="card" id="cardTripKpi">
+  <div class="sec-inline">关键指标<span class="sec-now" id="kpiSpan">本周</span></div>
+  <div class="kpi-grid">
+    <div class="kpi-t"><b id="kpiLongest">--</b><span>最长单程</span><i id="kpiLongestAt">--</i></div>
+    <div class="kpi-t"><b id="kpiLatest">--</b><span>最晚归家</span><i id="kpiLatestAt">--</i></div>
+    <div class="kpi-t"><b id="kpiBusiest">--</b><span>最忙一天</span><i id="kpiBusiestAt">--</i></div>
+    <div class="kpi-t"><b id="kpiDays">--</b><span>出行天数</span><i id="kpiDaysSub">--</i></div>
+    <div class="kpi-t"><b id="kpiAvgTrip">--</b><span>单次里程</span><i id="kpiAvgTripSub">平均</i></div>
+    <div class="kpi-t"><b id="kpiPerDay">--</b><span>日均里程</span><i>按周期天数</i></div>
+  </div>
+
+  <div class="chg-block">
+    <div class="chg-head">
+      <span class="chg-title" id="chgTitle">上次充电</span>
+      <span class="chg-at" id="chgAt">--</span>
+    </div>
+    <div class="chg-flow">
+      <span class="chg-soc" id="chgFrom">--</span>
+      <span class="chg-arrow">→</span>
+      <span class="chg-soc to" id="chgTo">--</span>
+      <span class="chg-gain" id="chgGain"></span>
+    </div>
+    <div class="chg-since">
+      <b id="chgKm">--</b>
+      <span>充完后已开</span>
+      <i id="chgKmSub">--</i>
+    </div>
+    <div class="chg-src" id="chgSrc">充电时刻来自本机每 20 秒的观察</div>
+    <button class="chg-access" id="chgAccess" type="button" hidden>开启通知读取，拿到精确的起止时刻</button>
+    <div class="chg-priv" id="chgPriv">只读取「比亚迪官方 App」的通知，且只记充电事件；其它 App 与其他车辆消息一律丢弃，不上传。</div>
+    <button class="chg-clear" id="chgClear" type="button">清空充电记录</button>
+    <div class="ratio-hint" id="chgHint">充电记录从本版开始攒：插枪充电时记起始电量，拔枪时记结束电量与总里程。</div>
+  </div>
+</div>

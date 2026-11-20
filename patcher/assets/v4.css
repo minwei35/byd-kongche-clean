@@ -1,0 +1,809 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   BYD 控车 · UI 4.0 —— "Night Instrument" 皮肤
+   设计计划见 instrument/harden/UI-4.0-DESIGN.md
+
+   全部为覆盖层：本文件在 styles.css 之后加载，不改任何 DOM/JS。
+   只做三件事：重设 token、给卡片加「刻度脊」签名元素、把读数改成等宽仪表字。
+   退回到 3.x 外观 = 删掉 index.html 里这一行 <link>。
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── ① token：夜间驾驶舱 ───────────────────────────────────────────────── */
+html:root{
+  --v4-graphite:#0B0D10; --v4-panel:#131A20; --v4-steel:#8B97A5;
+  --v4-amber:#E8A13A;    --v4-ice:#63C4DE;   --v4-alert:#D9615A;
+
+  --bg:#0B0D10; --bg2:#0E1216; --bg3:#141A21;
+  --card:rgba(19,26,32,.92); --card2:rgba(28,36,44,.66); --line:rgba(226,235,244,.085);
+  --txt:#E7ECF1; --muted:#8B97A5; --sub:#5E6A76;
+
+  --accent:#E8A13A; --accent-d:#B8771F;
+  --ok:#4CC38A; --ok-bg:rgba(76,195,138,.13); --ok-line:rgba(76,195,138,.30);
+  --warn:#E5B24A; --warn-bg:rgba(229,178,74,.11); --warn-line:rgba(229,178,74,.28);
+  --danger:#D9615A; --danger-bg:rgba(217,97,90,.13); --danger-line:rgba(217,97,90,.30);
+
+  --btn-unlock:#3FA96B; --btn-unlock-dark:#2C7F4F;
+  --btn-lock:#3E6FA8;   --btn-lock-dark:#2C5480;
+  --btn-power:#C9762E;  --btn-power-dark:#A85F1F;
+  --btn-off:#7A5AA8;    --btn-off-dark:#61458A;
+  --btn-trunk:#C9762E; --btn-flash:#D9A03A; --btn-find:#4A9FBF; --btn-windows:#74838F;
+
+  --radius:15px; --radius-s:13px; --radius-xs:10px;
+  --shadow:0 12px 30px rgba(0,0,0,.45);
+  --glass:blur(14px) saturate(118%);
+}
+
+/* 白天 = 仪表台的浅色搪塑面板，不是奶油纸 */
+html[data-theme="light"]:root{
+  --bg:#EDEFF1; --bg2:#E3E7EA; --bg3:#D8DDE2;
+  --card:#FFFFFF; --card2:#F3F6F8; --line:rgba(11,13,16,.10);
+  --txt:#12181D; --muted:#5B6771; --sub:#8A939B;
+  --accent:#B8771F; --accent-d:#8A5512;
+  --ok:#2F8A5F; --ok-bg:rgba(47,138,95,.09); --ok-line:rgba(47,138,95,.26);
+  --warn:#A9701B; --warn-bg:rgba(169,112,27,.09); --warn-line:rgba(169,112,27,.24);
+  --danger:#B4433D; --danger-bg:rgba(180,67,61,.09); --danger-line:rgba(180,67,61,.24);
+  --shadow:0 10px 24px rgba(11,13,16,.10);
+}
+
+/* ── ② 底色：石墨 + 拉丝微纹 + 顶部一点背光 ──────────────────────────────── */
+html body{
+  background:
+    radial-gradient(125% 68% at 50% -12%, rgba(232,161,58,.06), transparent 62%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.014) 0 1px, transparent 1px 3px),
+    var(--bg);
+  font-family:system-ui,-apple-system,"PingFang SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+  letter-spacing:0;
+}
+html[data-theme="light"] body{
+  background:
+    radial-gradient(125% 68% at 50% -12%, rgba(184,119,31,.05), transparent 62%),
+    repeating-linear-gradient(90deg, rgba(11,13,16,.012) 0 1px, transparent 1px 3px),
+    var(--bg);
+}
+
+/* ── ③ 顶栏：一条仪表面板条（琥珀发丝分隔 + 丝印标题）───────────────────── */
+html body .topbar{
+  background:linear-gradient(180deg, rgba(19,26,32,.96), rgba(11,13,16,.90));
+  border-bottom:1px solid rgba(226,235,244,.085);
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 12px;
+  position:relative;
+}
+html[data-theme="light"] body .topbar{background:linear-gradient(180deg,#F4F6F8,#E9EDF0)}
+html body .topbar::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;pointer-events:none;
+  background:linear-gradient(90deg, var(--v4-amber) 0 54px, rgba(226,235,244,.085) 54px 100%);
+}
+html body .tb-title{font-size:15px;font-weight:600;letter-spacing:.16em}
+html body .tb-sub{font-size:11px;letter-spacing:.05em;color:var(--sub);margin-top:3px}
+html body .icon-btn{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(226,235,244,.045);border:1px solid rgba(226,235,244,.10);color:var(--muted);
+}
+html body .icon-btn.active{
+  color:var(--v4-amber);border-color:rgba(232,161,58,.45);background:rgba(232,161,58,.10);
+}
+
+/* ── ④ 卡片：刻度脊（签名元素）+ 顶部玻璃反光 ───────────────────────────── */
+html body .card:not(.hero),
+html body #page-ble > .card{
+  position:relative;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.038), rgba(255,255,255,.008) 26%, transparent 60%),
+    var(--card);
+  border:1px solid rgba(226,235,244,.085);
+  border-radius:var(--radius);
+  box-shadow:0 10px 26px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.05);
+  transition:border-color .18s ease;
+}
+html[data-theme="light"] body .card:not(.hero),
+html[data-theme="light"] body #page-ble > .card{
+  background:linear-gradient(180deg,#FFFFFF,#FCFDFE);
+  border-color:rgba(11,13,16,.09);
+  box-shadow:0 8px 20px rgba(11,13,16,.08), inset 0 1px 0 #fff;
+}
+/* 原 3.x 在蓝牙首卡上的蓝色径向高光换成中性玻璃反光 */
+html body #page-ble > .card::before{
+  background:linear-gradient(200deg, rgba(255,255,255,.06), transparent 46%);
+}
+/* 刻度脊：左缘 2px 铝脊 + 每 7px 一枚刻度 + 顶部 14px 琥珀通电段 */
+html body .card:not(.hero)::after,
+html body #page-ble > .card::after{
+  content:"";position:absolute;left:5px;top:12px;bottom:12px;width:2px;pointer-events:none;
+  border-radius:2px;
+  background:
+    linear-gradient(180deg, var(--v4-amber) 0 14px, rgba(232,161,58,0) 14px),
+    repeating-linear-gradient(180deg, rgba(139,151,165,.50) 0 1px, transparent 1px 7px);
+  opacity:.8;
+}
+html body .card.foldable.folded::after{top:16px;bottom:16px}
+
+/* ── ⑤ 区块标题：仪表丝印字 ─────────────────────────────────────────────── */
+html body .sec-title{
+  display:flex;align-items:center;gap:8px;
+  font-size:10.5px;font-weight:600;color:var(--sub);
+  letter-spacing:.2em;margin:22px 6px 10px;
+}
+html body .sec-title::before{
+  content:"";width:3px;height:10px;border-radius:1px;background:var(--v4-amber);opacity:.9;flex:none;
+}
+html body .sec-now{font-size:11px;letter-spacing:.10em;color:var(--v4-amber);font-weight:600}
+
+/* ── ⑥ 按钮：琥珀主操作（深色字保证对比）+ 钢灰次操作 ───────────────────── */
+html body .btn{
+  border-radius:11px;min-height:52px;font-size:14.5px;font-weight:600;letter-spacing:.07em;
+}
+html body .btn-primary{
+  background:linear-gradient(180deg,#F0AE4C,#D3902A);
+  color:#1A1206;box-shadow:0 6px 18px rgba(232,161,58,.22), inset 0 1px 0 rgba(255,255,255,.38);
+}
+html body .btn-primary:active{box-shadow:0 2px 8px rgba(232,161,58,.18)}
+html body .btn-ghost{
+  background:rgba(226,235,244,.05);border:1px solid rgba(226,235,244,.12);color:var(--txt);
+}
+html[data-theme="light"] body .btn-ghost{background:#F1F4F6;border-color:rgba(11,13,16,.10)}
+html body .btn-mini{border-radius:9px;font-size:12.5px;letter-spacing:.06em}
+html body .btn-logout,html body .cfg-actions .btn-logout{
+  border:1px solid rgba(217,97,90,.38);color:var(--v4-alert);background:transparent;
+}
+
+/* ── ⑦ 底部导航：拉丝铝上沿 + 选中项一盏琥珀灯 ─────────────────────────── */
+html body .navbar{
+  background:linear-gradient(180deg, rgba(19,26,32,.97), rgba(7,9,11,.99));
+  border-top:1px solid rgba(226,235,244,.10);
+  box-shadow:0 -10px 26px rgba(0,0,0,.42);
+}
+html[data-theme="light"] body .navbar{background:linear-gradient(180deg,#F7F9FA,#EDF1F3)}
+html body .nav-item{color:var(--sub);font-size:11px;letter-spacing:.10em}
+html body .nav-item.active{color:var(--v4-amber)}
+html body .nav-item.active::before{
+  width:18px;height:2px;top:3px;border-radius:1px;background:var(--v4-amber);
+  box-shadow:0 0 10px rgba(232,161,58,.7), 0 0 2px rgba(232,161,58,.9);
+}
+
+/* ── ⑧ 示波器：一块表盘玻璃 ─────────────────────────────────────────────── */
+html body .scope-chart{
+  background:
+    linear-gradient(180deg, rgba(99,196,222,.055), rgba(0,0,0,0) 58%),
+    rgba(8,11,14,.72);
+  border:1px solid rgba(99,196,222,.16);
+  border-radius:11px;padding:6px;
+  box-shadow:inset 0 8px 18px rgba(0,0,0,.36), inset 0 0 0 1px rgba(0,0,0,.35);
+}
+html[data-theme="light"] body .scope-chart{
+  background:linear-gradient(180deg, rgba(99,196,222,.07), rgba(255,255,255,0) 58%), #FFFFFF;
+  border-color:rgba(11,13,16,.10);
+  box-shadow:inset 0 6px 14px rgba(11,13,16,.06);
+}
+html body .scope-live{
+  background:rgba(226,235,244,.10);border:1px solid rgba(226,235,244,.09);border-radius:11px;
+}
+html body .scope-live-item{background:rgba(12,17,21,.94);padding:10px 6px;gap:4px}
+html[data-theme="light"] body .scope-live-item{background:#F7F9FA}
+html body .scope-live-k{
+  font-size:9.5px;letter-spacing:.20em;color:var(--sub);font-weight:600;
+}
+html body .scope-live-v{
+  font-family:ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  font-size:17px;font-weight:700;letter-spacing:.01em;font-variant-numeric:tabular-nums;
+}
+html body .scope-live-v.link-live{color:#7FD8EA}
+html[data-theme="light"] body .scope-live-v.link-live{color:#1C7F97}
+html body .scope-live-v.accent{color:var(--v4-amber)}
+html body .scope-legend .lg{
+  border-radius:6px;background:rgba(226,235,244,.05);border:1px solid rgba(226,235,244,.10);
+  font-size:10.5px;letter-spacing:.04em;padding:3px 6px;color:var(--muted);
+}
+html body .scope-hint{font-size:10.5px;letter-spacing:.02em;opacity:.8}
+
+/* ── ⑨ 键值行：点状分隔 + 丝印标签 + 等宽读数 ───────────────────────────── */
+html body .kv{border-bottom:1px dashed rgba(226,235,244,.10)}
+html[data-theme="light"] body .kv{border-bottom-color:rgba(11,13,16,.10)}
+html body .kv-k{font-size:12px;letter-spacing:.05em;color:var(--muted);font-weight:500}
+html body .kv-v{
+  font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.01em;
+}
+html body .kv:active{background:rgba(232,161,58,.06);border-radius:7px}
+
+/* ── ⑩ 开关：金属导轨 + 琥珀滑块 ───────────────────────────────────────── */
+html body .switch{
+  width:50px;height:28px;border-radius:8px;
+  background:rgba(226,235,244,.07);border:1px solid rgba(226,235,244,.12);
+}
+html body .switch i{width:22px;height:22px;border-radius:5px;background:var(--sub)}
+html body .switch.on{background:rgba(232,161,58,.16);border-color:rgba(232,161,58,.45)}
+html body .switch.on i{left:24px;background:var(--v4-amber);box-shadow:0 0 10px rgba(232,161,58,.45)}
+
+/* ── ⑪ 选择件：chip / pill / 分段按钮 / 选项行 ──────────────────────────── */
+html body .chip,html body .pill,html body .seg-btn,html body .opt,html body .tseg-b{
+  border-radius:8px;border:1px solid rgba(226,235,244,.12);background:rgba(226,235,244,.05);
+  font-size:12px;letter-spacing:.04em;
+}
+html body .chip.on,html body .pill.on,html body .seg-btn.on,
+html body .opt.on,html body .tseg-b.on{
+  background:rgba(232,161,58,.16);border-color:rgba(232,161,58,.5);color:#F3C170;
+}
+html[data-theme="light"] body .chip.on,html[data-theme="light"] body .pill.on,
+html[data-theme="light"] body .seg-btn.on,html[data-theme="light"] body .opt.on,
+html[data-theme="light"] body .tseg-b.on{
+  background:rgba(184,119,31,.12);border-color:rgba(184,119,31,.45);color:#8A5512;
+}
+
+/* ── ⑫ 弹层与 Toast：面板 + 顶部琥珀发丝 ───────────────────────────────── */
+html body .sheet{background:rgba(5,7,9,.78)}
+html body .sheet-card{
+  position:relative;border-radius:16px;
+  background:linear-gradient(180deg, rgba(255,255,255,.045), transparent 24%), #111820;
+  border:1px solid rgba(226,235,244,.12);
+  box-shadow:0 26px 64px rgba(0,0,0,.62);
+}
+html[data-theme="light"] body .sheet-card{background:linear-gradient(180deg,#fff,#FBFCFD);border-color:rgba(11,13,16,.10)}
+html body .sheet-card::before{
+  content:"";position:absolute;top:0;left:18px;right:18px;height:2px;border-radius:0 0 2px 2px;
+  background:linear-gradient(90deg, var(--v4-amber), rgba(232,161,58,0));
+}
+html body .toast{
+  background:rgba(17,24,32,.97);border:1px solid rgba(232,161,58,.30);
+  color:var(--txt);border-radius:10px;letter-spacing:.03em;
+}
+html[data-theme="light"] body .toast{background:#1B232A;color:#F2F5F8}
+
+/* ── ⑬ 读数：所有数字走等宽，永远右对齐 ────────────────────────────────── */
+html body .hm-val,html body .ac-temp-val,html body .tire-v,
+html body .scope-live-v,html body .kv-v,html body .lstep-num{
+  font-variant-numeric:tabular-nums;
+}
+html body .hm-val,html body .ac-temp-val,html body .tire-v{
+  font-family:ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  letter-spacing:.01em;
+}
+
+/* ── ⑭ 车卡：保留照片底，只把圆角与压影统一到 4.0 ──────────────────────── */
+html body .hero{border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+html body .hero-name{letter-spacing:.10em}
+html body .hm-key{font-size:10px;letter-spacing:.12em;color:var(--muted)}
+
+/* ── ⑮ 无障碍：尊重 reduced motion ────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce){
+  html body *,html body *::before,html body *::after{
+    animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;scroll-behavior:auto !important;
+  }
+}
+
+/* ── ⑯ 控车宫格：一套钢灰墨色，只留两个语义色 ────────────────────────────
+   3.x 给 10 个按钮各配一种颜色（绿/蓝/橙/黄/青/紫）—— 十色并置等于没有强调色。
+   4.0 的规则：解锁（最高频）= 琥珀；锁车（静默安全）= 冰蓝；其余一律钢灰。
+   依据 design doc「一个强调色赢得注意力」。 */
+html body .ctl{
+  border-radius:13px;border:1px solid rgba(226,235,244,.10);
+  background:linear-gradient(168deg, rgba(255,255,255,.055), rgba(255,255,255,.012));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 2px 10px rgba(0,0,0,.26);
+}
+html body .ctl:active{border-color:rgba(232,161,58,.45);background:rgba(232,161,58,.10)}
+html body .ctl-t{font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+html body .ctl[data-act] .ctl-svg{color:#9AA7B4}
+html body .ctl[data-act="unlock"] .ctl-svg{color:var(--v4-amber)}
+html body .ctl[data-act="lock"]   .ctl-svg{color:var(--v4-ice)}
+html[data-theme="light"] body .ctl[data-act] .ctl-svg{color:#5B6771}
+html[data-theme="light"] body .ctl[data-act="unlock"] .ctl-svg{color:#B8771F}
+html[data-theme="light"] body .ctl[data-act="lock"]   .ctl-svg{color:#1C7F97}
+
+/* ── ⑰ 温度滑杆：冰 → 琥珀（保留"冷/热"信息，去掉彩虹）────────────────── */
+html body .range{background:#1A222A;border:1px solid rgba(226,235,244,.10);height:7px}
+html body #acTemp::-webkit-slider-runnable-track{
+  height:7px;border-radius:4px;
+  background:linear-gradient(90deg, #2E6E7F 0%, var(--v4-ice) 42%, var(--v4-amber) 100%);
+}
+html body .range::-webkit-slider-thumb{
+  background:linear-gradient(180deg,#F0AE4C,#D3902A);
+  border:3px solid #0D1216;
+  box-shadow:0 2px 8px rgba(0,0,0,.45), 0 0 0 3px rgba(232,161,58,.18);
+}
+html body .range::-webkit-slider-thumb:hover{box-shadow:0 3px 12px rgba(0,0,0,.5),0 0 0 5px rgba(232,161,58,.22)}
+html body .range::-webkit-slider-thumb:active{box-shadow:0 1px 6px rgba(0,0,0,.4),0 0 0 7px rgba(232,161,58,.26)}
+
+/* ── ⑱ 空调卡：两个字并排的按钮必须等高、标题说明降为caption ────────────── */
+html body .ac-btns .btn{
+  font-size:13.5px;line-height:1.3;letter-spacing:.02em;padding:14px 8px;
+  min-height:56px;text-align:center;
+}
+html body .ac-title{font-size:16px;letter-spacing:.06em}
+html body .ac-sub{font-size:11.5px;letter-spacing:.04em;color:var(--muted)}
+html body .ac-hint{font-size:11px;letter-spacing:.03em;color:var(--sub)}
+html body .ac-temp-val{
+  font-family:ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  letter-spacing:-.01em;
+}
+html body .hm-key,html body .hero-metric{letter-spacing:.10em}
+
+/* ── ⑲ 波形细节：图例与 MAC 归到"数据通道 = 冰蓝" ─────────────────────── */
+html body .scope-legend .lg-raw i{border-top-color:rgba(154,167,180,.55)}
+html body .scope-legend .lg-sig i{border-top-color:rgba(99,196,222,.95)}
+html body .scope-legend .lg-enter i{border-top-color:rgba(76,195,138,.9)}
+html body .scope-legend .lg-exit  i{border-top-color:rgba(232,161,58,.9)}
+html body #scopeMac{
+  font-family:ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  font-size:11px;letter-spacing:.05em;color:var(--v4-ice);font-weight:600;
+}
+html body .scope-live-v{font-size:16px}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4.0.1 —— 多模型评审修订（gpt-6.2-astra / deepseek-flash 双份评审的共同项）
+   修订原则：琥珀只保留"待执行的动作 + 当前选中"两职；状态色还给状态；
+   中文标签不再套拉丁丝印字距；刻度脊必须真的编码状态，否则全灰。
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── ⑳ 对比度基线：--sub 提亮到能过 4.5:1（原 #5E6A76 对面板只有 3.2:1）── */
+html:root{ --sub:#6E7B87 }
+html body{ color-scheme:dark }
+html[data-theme="light"] body{ color-scheme:light }
+/* 屏幕上的 1px 梳状纹在 2x/3x 下会起摩尔纹，读起来像脏点 —— 撤掉，只留顶光 */
+html body{
+  background:
+    radial-gradient(125% 68% at 50% -12%, rgba(232,161,58,.055), transparent 62%),
+    var(--bg);
+}
+
+/* ── ㉑ 选中态：琥珀底必须配深墨字，并清掉 3.x 留下的蓝色光晕 ────────────── */
+html body .chip.active{
+  background:linear-gradient(180deg,#F0AE4C,#D3902A);
+  border-color:rgba(232,161,58,.62);
+  color:#1A1206;font-weight:700;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.34), 0 2px 8px rgba(232,161,58,.18);
+}
+/* 状态胶囊不是"选中"：中性底 + 绿点，只有 danger 才发亮 */
+html body .pill.on{background:rgba(226,235,244,.06);border-color:rgba(226,235,244,.13);color:var(--txt)}
+html body .pill.on i{background:var(--ok);box-shadow:0 0 8px rgba(76,195,138,.45)}
+html body .pill.danger{background:rgba(217,97,90,.18);border-color:rgba(217,97,90,.48);color:#F2B0AA}
+html body .pill.warn{background:rgba(229,178,74,.14);border-color:rgba(229,178,74,.42)}
+
+/* ── ㉒ 控车瓦片：功能名回到主文字色（唯一可靠的区分依据），开关类恢复区分 ── */
+html body .ctl-t{color:var(--txt);opacity:.94;font-weight:600;font-size:12.5px;letter-spacing:.02em}
+/* "关"类动作（关后备箱 / 关车窗）与"开"类形状近似：降图标亮度 + 极轻冰蓝底，不动 DOM */
+html body .ctl[data-act="trunk_close"] .ctl-svg,
+html body .ctl[data-act="windows"] .ctl-svg{opacity:.52}
+html body .ctl[data-act="trunk_close"],
+html body .ctl[data-act="windows"]{
+  background:linear-gradient(168deg, rgba(99,196,222,.06), rgba(99,196,222,.012));
+}
+/* 锁车回到钢灰：冰蓝留给"数据通道"，不再兼任第二个主操作色 */
+html body .ctl[data-act="lock"] .ctl-svg,
+html[data-theme="light"] body .ctl[data-act="lock"] .ctl-svg{color:#9AA7B4}
+html[data-theme="light"] body .ctl[data-act="lock"] .ctl-svg{color:#5B6771}
+
+/* ── ㉓ 刻度脊：默认全灰（不编码就不许发亮），只有活的卡才点琥珀段 ─────────
+   1px 刻度每 8px 一枚 + 每 40px 一枚 2px 主刻度 = 读得出"刻度"而不是虚线；
+   琥珀头只在 #page-ble 的卡与"连接"确为已直连时出现（WebView 无 :has 则保持全灰）。 */
+html body .card:not(.hero)::after,
+html body #page-ble > .card::after{
+  left:6px;width:3px;opacity:.85;
+  background:
+    repeating-linear-gradient(180deg, rgba(139,151,165,.50) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(180deg, rgba(139,151,165,.85) 0 2px, transparent 2px 40px);
+}
+html body #page-ble > .card:has(#scopeConn.link-live)::after{
+  background:
+    linear-gradient(180deg, var(--v4-amber) 0 16px, rgba(232,161,58,0) 16px),
+    repeating-linear-gradient(180deg, rgba(139,151,165,.50) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(180deg, rgba(139,151,165,.85) 0 2px, transparent 2px 40px);
+}
+
+/* ── ㉔ 把装饰性的琥珀收掉，只留一处"亮着"（底部导航当前页）──────────────── */
+html body .topbar::after{
+  background:linear-gradient(90deg, rgba(226,235,244,.16) 0 54px, rgba(226,235,244,.085) 54px 100%);
+}
+html body .sec-title::before{background:rgba(139,151,165,.55)}
+html body .nav-item.active::before{box-shadow:0 0 8px rgba(232,161,58,.55)}
+html body .toast{border-color:rgba(226,235,244,.14)}
+html body .kv:active{background:rgba(226,235,244,.05)}
+/* 开关的"已开启"是状态，不是强调 —— 还给绿色 */
+html body .switch.on{background:rgba(76,195,138,.15);border-color:rgba(76,195,138,.40)}
+html body .switch.on i{background:var(--ok);box-shadow:none}
+
+/* ── ㉕ 中文标签不再套拉丁丝印字距（加宽 = 把汉字拆成孤立方块）────────────── */
+html body .scope-live-k{font-size:12px;letter-spacing:.04em;color:var(--muted);font-weight:600}
+html body .sec-title{font-size:11.5px;letter-spacing:.08em;color:var(--muted)}
+html body .tb-title{letter-spacing:.10em}
+html body .tb-sub{
+  font-size:11.5px;letter-spacing:.02em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100vw - 176px);
+}
+
+/* ── ㉖ 读数层：数字更硬，中文状态用品牌字；层级反过来（读数 > 车型名）──── */
+html body #scopeRssi{font:700 19px/1.2 ui-monospace,"Roboto Mono",monospace;font-variant-numeric:tabular-nums}
+html body #scopeConn,html body #scopeState{
+  font-family:inherit;font-size:15px;font-weight:600;letter-spacing:.02em;
+}
+html body .scope-live-v{font-size:17px}
+html body #scopeRssi.accent{color:var(--v4-ice)}
+html body #scopeMac{color:var(--muted);font-weight:500}
+html body .hm-val,html body .tire-val,html body .ac-temp-val,html body .kv-v{
+  font-family:ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  font-variant-numeric:tabular-nums;letter-spacing:.01em;
+}
+html body .hm-val{font-size:26px;font-weight:700}
+html body .hero-name{font-size:22px}
+html body .tire-val{font-size:19px;font-weight:700}
+
+/* ── ㉗ 温度滑杆：冷端改钢灰（冰蓝不兼职），轨道加刻度，拇指只留一层环 ──── */
+html body #acTemp::-webkit-slider-runnable-track{
+  height:7px;border-radius:4px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 13px, rgba(8,11,14,.55) 13px 14px),
+    linear-gradient(90deg, rgba(139,151,165,.42), rgba(232,161,58,.92));
+}
+html body .range::-webkit-slider-thumb{
+  box-shadow:0 2px 6px rgba(0,0,0,.5), 0 0 0 2px rgba(232,161,58,.22);
+}
+html body .range::-webkit-slider-thumb:hover{box-shadow:0 2px 6px rgba(0,0,0,.5),0 0 0 3px rgba(232,161,58,.26)}
+html body .range::-webkit-slider-thumb:active{box-shadow:0 2px 6px rgba(0,0,0,.5),0 0 0 4px rgba(232,161,58,.30)}
+
+/* ── ㉘ 空调卡减法：同一件事已经说了三遍，删掉最冗余的一行 ────────────────── */
+html body #acBookTip{display:none}
+html body .ac-btns{gap:14px}
+html body .ac-btns .btn-ghost{
+  background:transparent;border-color:rgba(226,235,244,.10);color:var(--muted);font-weight:500;
+}
+
+/* ── ㉙ 顶栏触区：38px 在手套下偏小，提到 42px（不动 SVG 视觉尺寸）───────── */
+html body .icon-btn{width:42px;height:42px;border-radius:11px}
+html body .topbar{gap:10px}
+
+/* ── ㉚ 刻度脊 v2：连续轴线 + 横向刻度，才读得出"刻度"而不是"虚线" ────────
+   3px 宽的纯竖刻在 1x 缩放上会被眼睛合成一条虚线边框；仪表刻度的语法是
+   「一条细轴 + 轴上向外的短线」。这里轴 = 左侧 1px 连续线，刻度 = 5px 宽 1px 短线。 */
+html body .card:not(.hero)::after,
+html body #page-ble > .card::after{
+  left:6px;width:5px;opacity:1;
+  background:
+    linear-gradient(90deg, rgba(139,151,165,.26) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(180deg, rgba(139,151,165,.46) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(180deg, rgba(139,151,165,.80) 0 2px, transparent 2px 48px);
+  -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+  mask-image:linear-gradient(180deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+}
+html body #page-ble > .card:has(#scopeConn.link-live)::after{
+  background:
+    linear-gradient(180deg, var(--v4-amber) 0 16px, rgba(232,161,58,0) 16px),
+    linear-gradient(90deg, rgba(139,151,165,.26) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(180deg, rgba(139,151,165,.46) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(180deg, rgba(139,151,165,.80) 0 2px, transparent 2px 48px);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4.1 —— 阈值精确设定（长按拖动只能凑大概，加一个可填数字的入口）
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 波形卡表头右侧：MAC + 「阈值」按钮 */
+html body .sec-tools{
+  display:inline-flex;align-items:center;gap:8px;margin-left:auto;flex:none;
+}
+html body .scope-gear{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:32px;min-width:56px;padding:0 12px;
+  border-radius:8px;border:1px solid rgba(226,235,244,.14);
+  background:rgba(226,235,244,.06);color:var(--txt);
+  font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.04em;
+  transition:background .12s ease,border-color .12s ease;
+}
+html body .scope-gear:active{
+  background:rgba(232,161,58,.16);border-color:rgba(232,161,58,.5);color:#F3C170;
+}
+html[data-theme="light"] body .scope-gear{background:#F0F3F6;border-color:rgba(11,13,16,.12);color:var(--txt)}
+
+/* 弹层内的两行输入 */
+html body #sheetThr .sheet-card{max-width:340px;text-align:left}
+html body #sheetThr .sheet-title,
+html body #sheetThr .sheet-sub{text-align:center}
+html body .thr-row{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 0;border-bottom:1px dashed rgba(226,235,244,.10);
+}
+html body .thr-row:first-of-type{border-top:1px dashed rgba(226,235,244,.10);margin-top:14px}
+html body .thr-k{
+  flex:1 1 auto;min-width:0;font-size:13px;font-weight:600;color:var(--txt);
+  letter-spacing:.02em;
+}
+html body .thr-k i{
+  display:block;font-style:normal;font-size:11px;font-weight:400;
+  color:var(--sub);margin-top:2px;letter-spacing:.02em;
+}
+html body .thr-u{flex:none;font-size:11px;color:var(--sub);letter-spacing:.04em}
+html body .thr-row .tune-input{
+  flex:0 0 96px;width:96px;height:44px;text-align:right;
+  font-family:ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;
+  color:var(--txt);background:rgba(226,235,244,.06);
+  border:1px solid rgba(226,235,244,.14);border-radius:9px;padding:0 10px;
+}
+html body .thr-row .tune-input:focus{
+  outline:none;border-color:rgba(232,161,58,.6);background:rgba(232,161,58,.08);
+}
+html body .thr-presets{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+html body .thr-presets button{
+  flex:1 1 0;min-width:0;height:40px;padding:0 4px;
+  border-radius:8px;border:1px solid rgba(226,235,244,.12);
+  background:rgba(226,235,244,.05);color:var(--muted);
+  font-family:inherit;font-size:10.5px;font-weight:600;letter-spacing:0;
+  white-space:nowrap;
+}
+html body .thr-presets button:active{border-color:rgba(232,161,58,.5);color:#F3C170}
+html body .thr-tip{
+  margin-top:12px;font-size:11px;color:var(--sub);letter-spacing:.02em;text-align:center;
+}
+html body .thr-msg{
+  min-height:15px;margin-top:6px;font-size:11.5px;line-height:1.4;
+  color:var(--v4-alert);text-align:center;
+}
+html body #sheetThr .sheet-actions{margin-top:14px}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4.2 —— 换肤器（设置页「外观」卡）：三块带真实配色的预览片
+   ══════════════════════════════════════════════════════════════════════════ */
+html body .skin-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px;
+}
+html body .skin-opt{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:10px 6px 9px;border-radius:11px;
+  border:1px solid rgba(226,235,244,.13);
+  background:rgba(226,235,244,.05);
+  color:var(--muted);font-family:inherit;
+  transition:border-color .14s ease,background .14s ease;
+}
+html body .skin-opt b{font-size:12.5px;font-weight:600;letter-spacing:.03em;color:var(--txt)}
+html body .skin-opt span{font-size:10px;letter-spacing:.02em;color:var(--sub);white-space:nowrap}
+html body .skin-opt.active{
+  border-color:rgba(232,161,58,.62);background:rgba(232,161,58,.12);
+  box-shadow:inset 0 0 0 1px rgba(232,161,58,.16);
+}
+html body .skin-opt.active b{color:#F3C170}
+/* 预览片：一小块"真配色"，不是图标 —— 换肤要看得到颜色本身 */
+html body .skin-sw{
+  display:flex;align-items:center;justify-content:center;gap:3px;
+  width:100%;height:34px;border-radius:7px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.14);
+}
+html body .skin-sw b,html body .skin-sw u{
+  display:block;width:9px;height:9px;border-radius:50%;text-decoration:none;
+}
+html body .skin-sw-night{background:linear-gradient(160deg,#121A2B,#0B0D10)}
+html body .skin-sw-night b{background:#E8A13A}
+html body .skin-sw-night u{background:#63C4DE}
+html body .skin-sw-platinum{background:linear-gradient(160deg,#2B3138,#15181C)}
+html body .skin-sw-platinum b{background:#D8C29A}
+html body .skin-sw-platinum u{background:#A3BDDA}
+html body .skin-sw-day{background:linear-gradient(160deg,#FFFFFF,#DDE3E8)}
+html body .skin-sw-day b{background:#B8771F}
+html body .skin-sw-day u{background:#1C7F97}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4.3 —— 车辆控制标题行：通道标签说人话，二次确认不再是裸开关
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 通道标签：从 10px 灰字升级成"带指示灯的状态牌"。
+   绿 = 蓝牙直连（本地、不受风控）；冰蓝 = 云端通道（要排队，10~30 秒）。 */
+html body .chan-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-left:auto;padding:3px 10px;border-radius:9px;
+  font-size:11.5px;font-weight:600;letter-spacing:.03em;line-height:1.5;
+  background:rgba(226,235,244,.08);border:1px solid rgba(226,235,244,.16);
+  color:var(--muted);white-space:nowrap;vertical-align:middle;
+}
+html body .chan-tag::before{
+  content:"";width:6px;height:6px;border-radius:50%;background:var(--sub);flex:none;
+}
+html body .chan-tag[data-chan="ble"]{
+  background:rgba(76,195,138,.16);border-color:rgba(76,195,138,.46);color:#8FE0B4;
+}
+html body .chan-tag[data-chan="ble"]::before{background:var(--ok);box-shadow:0 0 7px rgba(76,195,138,.8)}
+html body .chan-tag[data-chan="cloud"]{
+  background:rgba(99,196,222,.16);border-color:rgba(99,196,222,.46);color:#9BD8E8;
+}
+html body .chan-tag[data-chan="cloud"]::before{background:var(--v4-ice);box-shadow:0 0 7px rgba(99,196,222,.75)}
+
+/* 二次确认：一整行（名字 + 当前含义 + 开关），跟着控车按钮放，不再是个谜之滑块 */
+html body .ctl-cfm{
+  display:flex;align-items:center;gap:10px;
+  margin:2px 0 12px;padding:10px 12px;border-radius:11px;
+  background:rgba(226,235,244,.05);border:1px solid rgba(226,235,244,.10);
+}
+html body .ctl-cfm-k{font-size:12.5px;font-weight:600;color:var(--txt);letter-spacing:.02em;flex:none}
+html body .ctl-cfm-state{
+  flex:1 1 auto;min-width:0;font-size:11.5px;color:var(--sub);
+  letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+html body .ctl-cfm-state[data-on="1"]{color:var(--v4-ice)}
+html body .ctl-cfm .sw-mini{margin-left:auto;flex:none}
+/* 标题行不再塞开关，让标题 + 通道牌占满整行 */
+html body .sec-title.has-sw{flex-wrap:wrap}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4.4 —— 通道说明弹层（点「云端通道 / 蓝牙直连」打开）
+   ══════════════════════════════════════════════════════════════════════════ */
+html body .chan-tag{cursor:pointer}
+html body .chan-tag:active{transform:scale(.97)}
+
+html body #sheetChan .sheet-card{max-width:340px;text-align:left}
+html body #sheetChan .sheet-title{text-align:center;margin-bottom:14px}
+html body .chan-hero{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 14px;border-radius:11px;margin-bottom:10px;
+  background:rgba(226,235,244,.06);border:1px solid rgba(226,235,244,.12);
+}
+html body .chan-big{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:16px;font-weight:700;letter-spacing:.04em;color:var(--txt);
+}
+html body .chan-big::before{
+  content:"";width:9px;height:9px;border-radius:50%;background:var(--sub);flex:none;
+}
+html body .chan-big[data-chan="ble"]{color:#8FE0B4}
+html body .chan-big[data-chan="ble"]::before{background:var(--ok);box-shadow:0 0 9px rgba(76,195,138,.85)}
+html body .chan-big[data-chan="cloud"]{color:#9BD8E8}
+html body .chan-big[data-chan="cloud"]::before{background:var(--v4-ice);box-shadow:0 0 9px rgba(99,196,222,.8)}
+html body .chan-eta{font-size:12px;color:var(--sub);letter-spacing:.02em;text-align:right}
+html body .chan-why{
+  font-size:12.5px;line-height:1.9;color:var(--muted);
+  letter-spacing:.02em;margin:0 2px 12px;
+}
+html body #btnChanGo{min-height:48px;font-size:14px}
+html body .chan-sep{
+  height:1px;margin:16px 0 14px;
+  background:linear-gradient(90deg, transparent, rgba(226,235,244,.16), transparent);
+}
+html body .chan-sec{
+  font-size:10.5px;font-weight:600;color:var(--sub);
+  letter-spacing:.16em;margin-bottom:6px;
+}
+html body .chan-hint{font-size:11.5px;line-height:1.7;color:var(--muted);margin-bottom:10px}
+html body .chan-imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+html body .chan-imgs .btn{min-height:46px;font-size:13.5px}
+html body .chan-tip{font-size:10.5px;color:var(--sub);margin:8px 2px 0;letter-spacing:.02em}
+html body #sheetChan .sheet-actions{grid-template-columns:1fr;margin-top:16px}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4.5 —— 行程统计卡（周 / 月 / 年）
+   ══════════════════════════════════════════════════════════════════════════ */
+html body .trip-seg{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 14px;
+}
+html body .trip-seg-b{
+  height:38px;border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;
+  letter-spacing:.06em;color:var(--muted);
+  background:rgba(226,235,244,.05);border:1px solid rgba(226,235,244,.12);
+  transition:border-color .14s ease,background .14s ease,color .14s ease;
+}
+html body .trip-seg-b.on{
+  background:rgba(232,161,58,.16);border-color:rgba(232,161,58,.55);color:#F3C170;
+}
+html body .trip-kpis{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;
+}
+html body .trip-kpi{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 4px;border-radius:10px;
+  background:rgba(226,235,244,.05);border:1px solid rgba(226,235,244,.09);
+}
+html body .trip-kpi b{
+  font-family:ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--txt);
+  letter-spacing:.01em;white-space:nowrap;
+}
+html body .trip-kpi span{font-size:10px;color:var(--sub);letter-spacing:.02em;white-space:nowrap}
+html body #tkDelta[data-dir="up"]{color:var(--ok)}
+html body #tkDelta[data-dir="down"]{color:var(--v4-alert)}
+html body #tkDelta[data-dir="none"]{color:var(--sub)}
+
+/* 柱状图：纯 CSS，柱高按当期最大值归一 */
+html body .trip-bars{
+  display:flex;align-items:flex-end;gap:6px;height:96px;
+  padding:6px 2px 0;border-bottom:1px solid rgba(226,235,244,.10);
+}
+html body .trip-bars .tb{
+  flex:1 1 0;min-width:0;height:100%;
+  display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:0;
+}
+html body .trip-bars .tb i{
+  display:block;width:62%;max-width:22px;border-radius:3px 3px 0 0;
+  background:linear-gradient(180deg, rgba(99,196,222,.85), rgba(99,196,222,.35));
+  min-height:0;
+}
+html body .trip-bars .tb.has i{box-shadow:0 -1px 0 rgba(255,255,255,.12) inset}
+html body .trip-bars .tb b{
+  display:block;margin-top:6px;font-size:9.5px;font-weight:500;color:var(--sub);
+  letter-spacing:0;white-space:nowrap;transform:translateY(100%);
+}
+html body .trip-bars{margin-bottom:18px}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4.6 —— 关键指标卡（最长单程 / 最晚归家 / 最忙一天 / 出行天数 / 时长构成）
+   ══════════════════════════════════════════════════════════════════════════ */
+html body .kpi-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 4px;
+}
+html body .kpi-t{
+  display:flex;flex-direction:column;gap:2px;
+  padding:10px 8px 9px;border-radius:10px;
+  background:rgba(226,235,244,.05);border:1px solid rgba(226,235,244,.09);
+  min-width:0;
+}
+html body .kpi-t b{
+  font-family:ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  font-size:15px;font-weight:700;color:var(--txt);
+  font-variant-numeric:tabular-nums;letter-spacing:.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+html body .kpi-t span{font-size:10px;color:var(--sub);letter-spacing:.02em;white-space:nowrap}
+html body .kpi-t i{
+  font-style:normal;font-size:9.5px;color:var(--sub);opacity:.85;
+  letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+/* 充电块：上次充电 从 X% → Y%，充完后已开 Z km */
+html body .chg-block{
+  margin-top:14px;padding:12px 12px 10px;border-radius:11px;
+  background:rgba(226,235,244,.045);border:1px solid rgba(226,235,244,.10);
+}
+html body .chg-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+html body .chg-title{font-size:12.5px;font-weight:600;color:var(--txt);letter-spacing:.03em}
+html body .chg-at{font-size:10.5px;color:var(--sub);letter-spacing:.02em;white-space:nowrap}
+html body .chg-flow{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+html body .chg-soc{
+  font-family:ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  font-size:22px;font-weight:700;color:#9BD8E8;font-variant-numeric:tabular-nums;letter-spacing:.01em;
+}
+html body .chg-soc.to{color:var(--ok)}
+html body .chg-arrow{font-size:14px;color:var(--sub);transform:translateY(-2px)}
+html body .chg-gain{
+  margin-left:auto;font-size:12px;font-weight:600;color:var(--ok);
+  font-variant-numeric:tabular-nums;letter-spacing:.02em;
+}
+html body .chg-since{display:flex;align-items:baseline;gap:8px}
+html body .chg-since b{
+  font-family:ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  font-size:19px;font-weight:700;color:var(--txt);font-variant-numeric:tabular-nums;
+}
+html body .chg-since span{font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+html body .chg-since i{font-style:normal;font-size:10.5px;color:var(--sub);margin-left:auto;white-space:nowrap}
+html body .ratio-hint{
+  font-size:10.5px;line-height:1.7;color:var(--sub);margin-top:8px;letter-spacing:.02em;
+}
+
+/* ── 4.8 充电块：数据来源说明 + 通知授权入口 ─────────────────────────── */
+html body .chg-src{
+  font-size:9.5px;color:var(--sub);letter-spacing:.02em;margin-top:8px;opacity:.85;
+}
+html body .chg-access{
+  display:block;width:100%;margin-top:10px;height:42px;
+  border-radius:9px;border:1px solid rgba(232,161,58,.45);
+  background:rgba(232,161,58,.12);color:#F3C170;
+  font-family:inherit;font-size:12.5px;font-weight:600;letter-spacing:.02em;
+}
+html body .chg-access:active{background:rgba(232,161,58,.2)}
+/* hidden 必须真的藏起来：作者样式 display:block 会盖掉 UA 的 [hidden]{display:none} */
+html body .chg-access[hidden]{display:none}
+
+/* ── 4.9 充电块：隐私说明与清空 ─────────────────────────────────────── */
+html body .chg-priv{
+  font-size:9.5px;line-height:1.75;color:var(--sub);margin-top:10px;letter-spacing:.02em;opacity:.9;
+}
+html body .chg-clear{
+  margin-top:8px;height:34px;padding:0 12px;border-radius:8px;
+  border:1px solid rgba(226,235,244,.14);background:transparent;color:var(--sub);
+  font-family:inherit;font-size:11.5px;letter-spacing:.02em;
+}
+html body .chg-clear:active{border-color:rgba(217,97,90,.45);color:var(--v4-alert)}
+
+/* ── 4.12 顶栏瘦身：右侧只剩 ⚙，副标题给足宽度，不再被挤成两行 ───────── */
+html body .tb-sub{max-width:calc(100vw - 84px);font-size:11px;letter-spacing:0}
+html body .cfg-sound{
+  display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding:10px 0 2px;
+}
+html body .cfg-sound-k{
+  order:1;flex:none;font-size:13px;font-weight:600;color:var(--txt);letter-spacing:.02em;
+}
+html body .cfg-sound .switch{order:2;flex:none;margin-left:auto}
+html body .cfg-sound-tip{
+  order:3;flex:1 1 100%;min-width:0;font-size:11px;line-height:1.6;
+  color:var(--sub);letter-spacing:.02em;
+}
