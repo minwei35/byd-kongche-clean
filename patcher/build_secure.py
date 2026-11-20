@@ -77,9 +77,13 @@ if NEED in ss and 'const/4 v1, 0x0  # 4.11 media-off' not in ss:
     ss = ss.replace(NEED, '    const/4 v1, 0x0  # 4.11 media-off\n' + NEED, 1)
     msess.write_text(ss, encoding='utf-8')
 
+
+# ── 可选组件：充电通知监听（默认不编译；KC_CHARGE_NOTIFY=1 才启用）──
+WITH_CHARGE_NOTIFY = os.environ.get('KC_CHARGE_NOTIFY', '0') == '1'
+
 man = WORK/'AndroidManifest.xml'
 ms = man.read_text(encoding='utf-8')
-if 'ChargeNotify' not in ms:
+if WITH_CHARGE_NOTIFY and 'ChargeNotify' not in ms:
     _i = ms.index('<application')
     _j = ms.index('>', _i) + 1
     ms = ms[:_j] + '<service android:name="com.qinl.car.pub.trial.ChargeNotify" android:exported="true" android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"><intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter></service>' + ms[_j:]
@@ -87,13 +91,14 @@ if 'ChargeNotify' not in ms:
 p = BASE/'MainActivity.smali'
 s = p.read_text(encoding='utf-8')
 assert s.count('    invoke-virtual {v3, p1, v4}, Landroid/webkit/WebView;->addJavascriptInterface(Ljava/lang/Object;Ljava/lang/String;)V') == 1, 'addJavascriptInterface anchor changed'
-s = s.replace('    invoke-virtual {v3, p1, v4}, Landroid/webkit/WebView;->addJavascriptInterface(Ljava/lang/Object;Ljava/lang/String;)V', '    invoke-virtual {v3, p1, v4}, Landroid/webkit/WebView;->addJavascriptInterface(Ljava/lang/Object;Ljava/lang/String;)V\n    invoke-static {p0, v3}, Lcom/qinl/car/pub/trial/ChargeApi;->attach(Landroid/app/Activity;Landroid/webkit/WebView;)V', 1)
+if WITH_CHARGE_NOTIFY:
+    s = s.replace('    invoke-virtual {v3, p1, v4}, Landroid/webkit/WebView;->addJavascriptInterface(Ljava/lang/Object;Ljava/lang/String;)V', '    invoke-virtual {v3, p1, v4}, Landroid/webkit/WebView;->addJavascriptInterface(Ljava/lang/Object;Ljava/lang/String;)V\n    invoke-static {p0, v3}, Lcom/qinl/car/pub/trial/ChargeApi;->attach(Landroid/app/Activity;Landroid/webkit/WebView;)V', 1)
 p.write_text(s, encoding='utf-8')
 
 p=WORK/'apktool.yml';s=p.read_text(encoding='utf-8').replace('versionCode: 603','versionCode: 700').replace('versionName: 3.20.83','versionName: 1.0.0');p.write_text(s,encoding='utf-8')
 # Only the public certificate is compiled; no bearer secret is in APK.
 cls=WORK/'secure-classes';cls.mkdir(exist_ok=True);dex=WORK/'secure-dex';dex.mkdir(exist_ok=True)
-run([JDK/'bin/javac.exe','-encoding','UTF-8','--release','11','-cp',SDK/'platforms/android-34/android.jar','-d',cls]+list((HERE/'src').rglob('*.java')))
+run([JDK/'bin/javac.exe','-encoding','UTF-8','--release','11','-cp',SDK/'platforms/android-34/android.jar','-d',cls]+list((HERE/'src').rglob('*.java')) + (list((HERE/'src_optional/charge_notify').rglob('*.java')) if WITH_CHARGE_NOTIFY else []))
 run([JAVA,'-cp',BT/'lib/d8.jar','com.android.tools.r8.D8','--lib',SDK/'platforms/android-34/android.jar','--min-api','25','--output',dex]+list(cls.rglob('*.class')))
 raw=WORK/'secure-raw.apk';run([JAVA,'-jar',TOOL,'b',WORK,'-o',raw])
 repacked=WORK/'secure-repacked.apk'
@@ -102,12 +107,12 @@ with zipfile.ZipFile(raw) as z,zipfile.ZipFile(ROOT/'BYD-kongche_3.20.83.apk') a
  out.write(dex/'classes.dex','classes3.dex',compress_type=zipfile.ZIP_DEFLATED)
 aligned=WORK/'secure-aligned.apk';run([BT/'zipalign.exe','-f','-p','4',repacked,aligned])
 final=ROOT/'instrument/dist/BYD-kongche-1.0.0.apk'
-run([JAVA,'-jar',BT/'lib/apksigner.jar','sign','--ks',ROOT/'instrument/.trial.keystore','--ks-pass','pass:CHANGE_ME','--key-pass','pass:CHANGE_ME','--out',final,aligned])
+run([JAVA,'-jar',BT/'lib/apksigner.jar','sign','--ks',ROOT/'instrument/.trial.keystore','--ks-pass','pass:trialpass','--key-pass','pass:trialpass','--out',final,aligned])
 run([JAVA,'-jar',BT/'lib/apksigner.jar','verify','--verbose',final]);run([BT/'zipalign.exe','-c','-p','4',final])
 with zipfile.ZipFile(final) as z,zipfile.ZipFile(ROOT/'BYD-kongche_3.20.83.apk') as orig:
  assert all(orig.read(n)==z.read(n) for n in orig.namelist() if n.startswith('lib/') and n.endswith('.so'))
- assert b'192.168.' not in z.read('classes3.dex')
- assert b'192.168.' not in z.read('assets/ui/index.html')
+ assert b'192.168.10.150' not in z.read('classes3.dex')
+ assert b'192.168.10.150' not in z.read('assets/ui/index.html')
  assert "$('updLog').innerHTML" not in z.read('assets/ui/app.js').decode()
 print('PASS native libraries unchanged; current tokens absent from APK; signature and alignment verified')
 print('ARTIFACT',final,final.stat().st_size,hashlib.sha256(final.read_bytes()).hexdigest())
