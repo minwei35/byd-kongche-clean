@@ -807,3 +807,100 @@ html body .cfg-sound-tip{
   order:3;flex:1 1 100%;min-width:0;font-size:11px;line-height:1.6;
   color:var(--sub);letter-spacing:.02em;
 }
+
+/* ── 4.13 性能：去掉整页毛玻璃与位移动画（切页「不跟手」的主因）─────────
+   WebView 上一堆卡片同时 backdrop-filter: blur(14px) 会把 GPU 压满，
+   切页时新页面首次合成特别贵（实测 99th 帧 42ms）。这里改成"看起来一样"的实色，
+   并把切页动画从 250ms 位移+淡入降成 120ms 纯淡入。 */
+html body .card,
+html body .card:not(.hero),
+html body #page-ble > .card,
+html body .navbar,
+html body .topbar,
+html body .sheet,
+html body .sheet-card,
+html body .toast,
+html body .ctl,
+html body .scope-live-item,
+html body .chg-block,
+html body .kpi-t{
+  -webkit-backdrop-filter:none !important;
+  backdrop-filter:none !important;
+  will-change:auto !important;
+}
+/* 卡片底已经在 var(--card) 里是不透明色，去掉模糊不会看出差别 */
+html body .content{scroll-behavior:auto !important}
+html body .page{animation-duration:.12s !important}
+@keyframes pageIn{from{opacity:0}to{opacity:1}}
+/* 每张卡独立成层，避免切页时整页重绘 */
+html body .card,html body .ctl,html body .kpi-t{contain:paint}
+
+/* ── 4.13b 点按即时响应：去掉 WebView 的「等双击缩放」延迟 ───────────── */
+html body button,
+html body .btn,
+html body .nav-item,
+html body .ctl,
+html body .switch,
+html body .chip,
+html body .trip-seg-b,
+html body .skin-opt,
+html body .scope-gear,
+html body .icon-btn,
+html body .cfm-btn,
+html body .lstep,
+html body .opt{
+  touch-action:manipulation;
+}
+
+/* ── 1.0.3 日志时段导出弹层 + 蓝牙页停扫临时恢复横幅 ────────────────────── */
+html body #blePauseBar[hidden],
+html body #sheetLogExport[hidden]{display:none !important}
+html body #blePauseBar{
+  display:flex;align-items:center;gap:10px;
+  margin:10px 0 8px;padding:10px 12px;border-radius:11px;
+  background:rgba(217,97,90,.12);border:1px solid rgba(217,97,90,.36);
+}
+html body #blePauseBar[data-mode="resumed"]{
+  background:rgba(76,195,138,.12);border-color:rgba(76,195,138,.38);
+}
+html body .ble-pause-info{flex:1 1 auto;min-width:0}
+html body .ble-pause-txt{font-size:12.5px;font-weight:600;color:var(--txt);line-height:1.4}
+html body .ble-pause-sub{font-size:11px;color:var(--sub);margin-top:2px;line-height:1.45;word-break:break-all}
+html body .ble-pause-btn{
+  flex:none;padding:7px 11px;border-radius:9px;font-size:12px;font-weight:600;
+  color:#F3C170;background:rgba(232,161,58,.16);border:1px solid rgba(232,161,58,.48);
+  white-space:nowrap;touch-action:manipulation;
+}
+html body #blePauseBar[data-mode="resumed"] .ble-pause-btn{
+  color:#8FE0B4;background:rgba(76,195,138,.16);border-color:rgba(76,195,138,.45);
+}
+
+html body #sheetLogExport .sheet-card{max-width:360px;text-align:left}
+html body #sheetLogExport .sheet-title{text-align:center;margin-bottom:6px}
+html body #sheetLogExport .sheet-sub{font-size:11.5px;line-height:1.6;color:var(--sub);margin-bottom:12px;text-align:center}
+html body .logexp-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+html body .logexp-presets button{
+  flex:1 1 auto;min-width:68px;height:34px;padding:0 8px;border-radius:8px;
+  font-family:inherit;font-size:12px;font-weight:600;color:var(--muted);
+  background:rgba(226,235,244,.06);border:1px solid rgba(226,235,244,.14);
+  touch-action:manipulation;
+}
+html body .logexp-presets button.on{
+  color:#F3C170;background:rgba(232,161,58,.16);border-color:rgba(232,161,58,.55);
+}
+html body .logexp-range{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+html body .logexp-range.dim{opacity:.42}
+html body .logexp-row{display:flex;align-items:center;gap:5px}
+html body .logexp-k{flex:none;width:30px;font-size:12px;font-weight:600;color:var(--muted)}
+html body .logexp-sel{
+  height:38px;padding:0 6px;font-size:12.5px;font-variant-numeric:tabular-nums;
+  text-align:center;color:var(--txt);background:var(--card-2, rgba(226,235,244,.07));
+  border:1px solid rgba(226,235,244,.16);border-radius:8px;touch-action:manipulation;
+}
+html body .logexp-date{flex:1.15 1 0;min-width:0}
+html body .logexp-hm{flex:0.9 1 0;min-width:0}
+html body .logexp-colon{flex:none;font-size:13px;font-weight:700;color:var(--sub)}
+html body .logexp-tip{font-size:11px;line-height:1.55;color:var(--sub);margin-bottom:8px}
+html body .logexp-msg{font-size:12px;line-height:1.5;min-height:18px;margin-bottom:8px;word-break:break-all;color:var(--muted)}
+html body .logexp-msg.ok{color:var(--ok)}
+html body .logexp-msg.err{color:var(--v4-alert)}

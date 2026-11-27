@@ -1,0 +1,35 @@
+<div class="sheet" id="sheetLogExport" hidden>
+  <div class="sheet-card">
+    <div class="sheet-title">导出日志压缩包</div>
+    <div class="sheet-sub" id="logExpInv">读取本机日志留存中…</div>
+    <div class="logexp-presets" id="logExpPresets">
+      <button type="button" data-log-preset="1h">最近 1 小时</button>
+      <button type="button" data-log-preset="3h">最近 3 小时</button>
+      <button type="button" data-log-preset="today">今天</button>
+      <button type="button" data-log-preset="yesterday">昨天</button>
+      <button type="button" data-log-preset="all">全部留存</button>
+    </div>
+    <div class="logexp-range" id="logExpRange">
+      <div class="logexp-row">
+        <span class="logexp-k">开始</span>
+        <select class="tune-input logexp-sel logexp-date" id="logDateStart" aria-label="开始日期"></select>
+        <select class="tune-input logexp-sel logexp-hm" id="logHourStart" aria-label="开始小时"></select>
+        <span class="logexp-colon">:</span>
+        <select class="tune-input logexp-sel logexp-hm" id="logMinStart" aria-label="开始分钟"></select>
+      </div>
+      <div class="logexp-row">
+        <span class="logexp-k">结束</span>
+        <select class="tune-input logexp-sel logexp-date" id="logDateEnd" aria-label="结束日期"></select>
+        <select class="tune-input logexp-sel logexp-hm" id="logHourEnd" aria-label="结束小时"></select>
+        <span class="logexp-colon">:</span>
+        <select class="tune-input logexp-sel logexp-hm" id="logMinEnd" aria-label="结束分钟"></select>
+      </div>
+    </div>
+    <div class="logexp-tip" id="logExpTip">导出 ZIP 保存到 Download/BYD-Kongche-Logs/，并可立即分享；不上传任何服务器。</div>
+    <div class="logexp-msg" id="logExpMsg"></div>
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" id="btnLogExpCancel" type="button">关闭</button>
+      <button class="btn btn-primary" id="btnLogExpGo" type="button">导出 ZIP</button>
+    </div>
+  </div>
+</div>

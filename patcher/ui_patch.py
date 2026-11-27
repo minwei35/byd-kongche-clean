@@ -19,7 +19,7 @@ CSP = ('<meta http-equiv="Content-Security-Policy" content="default-src \'self\'
 UPLOAD_BLOCK = '''<div class="ble-actions" style="margin-top:10px">
           <button class="btn btn-primary" id="btnExportAbout">\U0001F4E6 导出日志压缩包</button>
         </div>
-        <div class="hint" id="diagExportHintAbout">把运行日志与本机设置打成一个 zip，存到 <b>Download/</b>，自己拿去查或发给朋友看。不上传任何服务器。</div>'''
+        <div class="hint" id="diagExportHintAbout">支持按时间段筛选（如今天 13:00~14:00），打包成 zip 存到 <b>Download/BYD-Kongche-Logs/</b>，不上传任何服务器。</div>'''
 
 HERE_DIR = Path(__file__).resolve().parent
 THR_JS = (HERE_DIR / 'assets/thr.js').read_text(encoding='utf-8')
@@ -31,6 +31,17 @@ TRIPKPI_JS = (HERE_DIR / 'assets/tripkpi.js').read_text(encoding='utf-8')
 TRIPKPI_CARD = (HERE_DIR / 'assets/tripkpi_card.html').read_text(encoding='utf-8')
 CHAN_SHEET = (HERE_DIR / 'assets/chan_sheet.html').read_text(encoding='utf-8')
 THR_SHEET = (HERE_DIR / 'assets/thr_sheet.html').read_text(encoding='utf-8')
+LOGEXPORT_SHEET = (HERE_DIR / 'assets/logexport_sheet.html').read_text(encoding='utf-8')
+LOGEXPORT_JS = (HERE_DIR / 'assets/logexport.js').read_text(encoding='utf-8')
+BLE_PAUSE_BAR = (
+    '<div class="ble-pause-bar" id="blePauseBar" hidden>\n'
+    '  <div class="ble-pause-info">\n'
+    '    <div class="ble-pause-txt" id="blePauseTxt">后台停扫生效中</div>\n'
+    '    <div class="ble-pause-sub" id="blePauseSub"></div>\n'
+    '  </div>\n'
+    '  <button class="ble-pause-btn" id="btnBleTempResume" type="button">临时恢复 30 分</button>\n'
+    '</div>\n'
+)
 
 CTL_HEAD_OLD = (
     '<div class="sec-title has-sw">车辆控制<span class="chan-tag" id="chanTag">通道检测中</span>'
@@ -124,6 +135,13 @@ def _patch_html(html):
         if toast_anchor not in html:
             raise ValueError('toast 锚点变了')
         html = html.replace(toast_anchor, THR_SHEET + toast_anchor, 1)
+    if 'id="sheetLogExport"' not in html:
+        toast_anchor = '<div class="toast" id="toast"></div>'
+        if toast_anchor not in html:
+            raise ValueError('toast 锚点变了')
+        html = html.replace(toast_anchor, LOGEXPORT_SHEET + toast_anchor, 1)
+    if 'id="blePauseBar"' not in html and '<div class="scope-live">' in html:
+        html = html.replace('<div class="scope-live">', BLE_PAUSE_BAR + '<div class="scope-live">', 1)
     # 停扫并进「连接」格，不再新增格子；这里只确认原有状态行还在。
     for live_id in ('scopeConn', 'scopeRssi', 'scopeState'):
         assert 'id="' + live_id + '"' in html, live_id
@@ -167,7 +185,7 @@ def _patch_js(js):
     assert 'btnAboutAuthor' not in js and 'aboutLongFired' not in js and 'aboutClose' not in js
     anchor = '  function renderScope(st) {'
     assert js.count(anchor) == 1 and '/*P-BEGIN*/' not in js
-    js = js.replace(anchor, PAUSE_JS + chr(10) + THR_JS + chr(10) + CTLHEAD_JS + chr(10) + CHAN_JS + chr(10) + TRIPSTAT_JS + chr(10) + TRIPKPI_JS + anchor, 1)
+    js = js.replace(anchor, PAUSE_JS + chr(10) + THR_JS + chr(10) + CTLHEAD_JS + chr(10) + CHAN_JS + chr(10) + TRIPSTAT_JS + chr(10) + TRIPKPI_JS + chr(10) + LOGEXPORT_JS + anchor, 1)
     state = "    scopeSetTxt('scopeState', st.state || '--');"
     assert js.count(state) == 1
     js = js.replace(state, state + '''

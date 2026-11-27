@@ -2,7 +2,7 @@ from pathlib import Path
 import zipfile,hashlib,subprocess,os,re
 root=Path(__file__).resolve().parents[2]
 work=Path(os.environ['TEMP'])/'kongche-secure5'
-apk=root/'instrument/dist/BYD-kongche-1.0.0.apk'
+apk=root/'instrument/dist/BYD-kongche-1.0.6.apk'
 with zipfile.ZipFile(apk) as z:
  html=z.read('assets/ui/index.html').decode();js=z.read('assets/ui/app.js').decode()
  assert 'Content-Security-Policy' in html
@@ -32,7 +32,8 @@ with zipfile.ZipFile(apk) as z:
  assert 'id="iconCard"' not in html and 'id="chgBody"' not in html  # 1.0.0 摘掉图标卡与更新日志
  assert 'id="btnCheckUpdate"' not in html and 'id="updateHint"' not in html
  assert 'id="btnExportAbout"' in html and '导出日志压缩包' in html
- assert 'btnTrialUpload' not in html
+ assert 'id="sheetLogExport"' in html and 'id="blePauseBar"' in html
+ assert 'KCLog' in js and 'exportRange' in js and 'tempResume' in js
  assert 'btnTrialUpload' not in html
  assert 'id="cardCenterCard"' not in html and 'id="mcBtn1"' not in html  # 4.11 锁屏媒体卡片设置也去掉
  assert 'media-off' in (work/'smali_classes2/com/qinl/car/pub/BleScanService.smali').read_text(encoding='utf-8')
@@ -61,14 +62,20 @@ for p in orig.glob('*.smali'):
 assert changed==['BleDirectSession.smali'],changed
 text=(orig/'BleDirectSession.smali').read_text(encoding='utf-8').replace('    sput-boolean v1, Lcom/qinl/car/pub/bluetooth/BleDirectSession;->RAW_DUMP:Z','    const/4 v0, 0x0\n    sput-boolean v0, Lcom/qinl/car/pub/bluetooth/BleDirectSession;->RAW_DUMP:Z')
 assert text==(base/'bluetooth/BleDirectSession.smali').read_text(encoding='utf-8')
+assert '0x124f80' not in (base/'AutoPause.smali').read_text(encoding='utf-8'), '20m backoff still present'
+assert 'PauseOverride' in (base/'AutoPause.smali').read_text(encoding='utf-8')
+assert 'PauseOverride' in (base/'wui/BleRuntime.smali').read_text(encoding='utf-8')
+assert 'LogExportApi' in (base/'MainActivity.smali').read_text(encoding='utf-8')
+assert 'GattWatchdog;->tick' in (base/'BleScanService.smali').read_text(encoding='utf-8')
+assert 'GattWatchdog;->onMotion' in (base/'BleScanService.smali').read_text(encoding='utf-8')
 sdk=Path.home()/'android-sdk/build-tools/android-14'
 r=subprocess.check_output([str(sdk/'aapt2.exe'),'dump','badging',str(apk)],text=True,encoding='utf-8')
-assert "versionCode='700'" in r and "versionName='1.0.0'" in r,r[:300]
+assert "versionCode='706'" in r and "versionName='1.0.6'" in r,r[:300]
 cert=[]
 for p in [root/'instrument/dist/BYD-kongche-3.20.83-logtrial1.apk',apk]:
  out=subprocess.check_output(['C:/Program Files/java/jdk-11.0.18/bin/java.exe','-jar',str(sdk/'lib/apksigner.jar'),'verify','--print-certs',str(p)],text=True)
  cert.append(re.search(r'certificate SHA-256 digest: (\w+)',out)[1])
 assert cert[0]==cert[1]
 h=hashlib.sha256(apk.read_bytes()).hexdigest();apk.with_suffix('.apk.sha256').write_text(h+'  '+apk.name+'\n',encoding='utf-8')
-print('PASS CSP/HTML, no calibration, manual upload only, pause merged into connection cell, v4 skin, inert Bemfa, bridge, file access, BLE patch only RAW_DUMP, version700, same signer')
+print('PASS CSP/HTML, no calibration, time-range log export, pause override, gatt watchdog, v4 skin, inert Bemfa, bridge, file access, BLE patch only RAW_DUMP, version706, same signer')
 print('SIZE',apk.stat().st_size,'SHA256',h)

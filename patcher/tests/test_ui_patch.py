@@ -229,6 +229,22 @@ console.log('PASS pause labels');
         self.assertNotIn('@import', plat)
         self.assertIn('#D8C29A', plat)
 
+    def test_log_export_and_pause_bar(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ui = _apply(tmp)
+            html = (ui / 'index.html').read_text(encoding='utf-8')
+            js = (ui / 'app.js').read_text(encoding='utf-8')
+        for el in ('sheetLogExport', 'logExpInv', 'logExpPresets', 'logDateStart',
+                   'logHourStart', 'logMinStart', 'logDateEnd', 'logHourEnd', 'logMinEnd',
+                   'btnLogExpGo', 'btnLogExpCancel', 'blePauseBar', 'btnBleTempResume'):
+            self.assertIn('id="%s"' % el, html, el)
+        self.assertEqual(html.count('data-log-preset='), 5)
+        self.assertIn('KCLog.exportRange', js)
+        self.assertIn('KCLog.info', js)
+        self.assertIn('KCLog.tempResume', js)
+        self.assertIn('KCLog.cancelTempResume', js)
+        self.assertNotIn("t.click()", js)
+
     def test_second_apply_is_refused_without_partial_write(self):
         with tempfile.TemporaryDirectory() as tmp:
             ui = _apply(tmp)

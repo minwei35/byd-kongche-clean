@@ -340,8 +340,8 @@
     }, true);
     setInterval(function () {
       var pg = $('page-trips');
+      /* 不在这页就什么都不做：以前会顺手 renderCharge()，在别的页面上也动 DOM */
       if (pg && pg.classList.contains('active')) render(curSpan());
-      else renderCharge();
     }, 12000);
 
     render(curSpan());
